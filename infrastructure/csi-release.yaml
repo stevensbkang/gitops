@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: csi
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: csi-secrets-store-provider-azure
+  namespace: csi
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: csi-secrets-store-provider-azure
+  chart:
+    repository: https://raw.githubusercontent.com/Azure/secrets-store-csi-driver-provider-azure/master/charts/
+    name: csi-secrets-store-provider-azure
+    version: 0.0.13
+  values:
+    image:
+      tag: 0.0.9
+    secrets-store-csi-driver:    
+      linux:
+        image:
+          tag: v0.0.16
+      windows:
+        image:
+          tag: v0.0.16    
+      enableSecretRotation: true
+      rotationPollInterval: 2m

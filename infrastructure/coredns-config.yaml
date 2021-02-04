@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    addonmanager.kubernetes.io/mode: EnsureExists
+    k8s-app: kube-dns
+    kubernetes.io/cluster-service: "true"
+  name: coredns-custom
+  namespace: kube-system
+  selfLink: /api/v1/namespaces/kube-system/configmaps/coredns-custom
+data:
+  ssbkang.conf.server: |
+    ssbkang.io:53 {
+        errors
+        cache 30
+        forward . 10.0.0.1 10.0.0.2 10.0.0.3 10.0.0.4
+    }

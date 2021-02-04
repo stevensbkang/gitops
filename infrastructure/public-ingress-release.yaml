@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: public-ingress
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: public-nginx-ingress
+  labels: 
+    cert-manager.io/disable-validation: "true"
+  namespace: public-ingress
+spec:
+  releaseName: public-nginx-ingress
+  targetNamespace: public-ingress
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    name: nginx-ingress
+    version: 1.39.0
+  values:
+    controller:
+      ingressClass: public-nginx-ingress
+      useIngressClassOnly: true
+      replicaCount: 3
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      service:
+        annotations:
+          service.beta.kubernetes.io/azure-load-balancer-internal: "false"        
+    defaultBackend:
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  labels: 
+    cert-manager.io/disable-validation: "true"
+  namespace: public-ingress
+spec:
+  releaseName: cert-manager
+  targetNamespace: public-ingress
+  chart:
+    repository: https://charts.jetstack.io/
+    name: cert-manager
+    version: v1.0.4
+  values:
+    installCRDs: true
+    nodeSelector:
+      beta.kubernetes.io/os: linux
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: steven.kang@ssbkang.io
+    privateKeySecretRef:
+      name: letsencrypt
+    solvers:
+    - http01:
+        ingress:
+          class: public-nginx-ingress
+          podTemplate:
+            spec:
+              nodeSelector:
+                "beta.kubernetes.io/os": linux

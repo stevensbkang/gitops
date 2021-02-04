@@ -1,0 +1,27 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: promtail-release
+  namespace: monitoring
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: promtail
+  chart:
+    repository: https://grafana.github.io/loki/charts/
+    name: promtail
+    version: 2.0.0
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 5  
+  maxHistory: 20
+  values:
+    image:
+      repository: grafana/promtail
+      tag: 2.0.0
+      pullPolicy: IfNotPresent
+    loki:
+      serviceName: loki
+    nodeSelector:
+      beta.kubernetes.io/os: linux

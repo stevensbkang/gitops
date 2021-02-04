@@ -1,0 +1,35 @@
+kubernetes_resource_group = "kubernetes-rg"
+location                  = ""
+tags = {
+  env = "dev"
+}
+kubernetes_cluster_name            = "kubernetes"
+kubernetes_private_cluster_enabled = "false"
+kubernetes_api_server_authorized_ip_ranges = [
+  "0.0.0.0/0"
+]
+kubernetes_virtual_network_name        = "kubernetes-vnet"
+kubernetes_virtual_network_cidr        = "10.100.0.0/16"
+kubernetes_virtual_network_subnet_name = "kubernetes-subnet"
+kubernetes_virtual_network_subnet_cidr = "10.100.0.0/22"
+kubernetes_version                     = "1.18.10"
+kubernetes_network_plugin              = "azure"
+kubernetes_network_policy              = "azure"
+kubernetes_dns_service_ip              = "10.172.26.10"
+kubernetes_service_cidr                = "10.172.26.0/24"
+kubernetes_docker_bridge_cidr          = "172.17.0.1/16"
+kubernetes_default_node_pool_name      = "lin01"
+kubernetes_default_node_pool_type      = "VirtualMachineScaleSets"
+kubernetes_default_node_pool_count     = 1
+kubernetes_default_node_pool_vm_size   = "Standard_D2s_v3"
+kubernetes_default_node_pool_max_pods  = 50
+container_registry_name                = "kubernetesacr"
+container_registry_resource_group_name = "acr-rg"
+network_security_group_name            = "kubernetes-nsg"
+azure_ad_aks_admin_group               = "kubernetes_admin"
+storage_account_name                   = "lokisa"
+storage_account_tier                   = "Standard"
+storage_account_replication_type       = "LRS"
+storage_account_kind                   = "StorageV2"
+storage_account_container_name         = "loki"
+storage_account_container_type         = "private"

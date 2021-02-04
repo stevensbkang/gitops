@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: portainer
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: portainer-release
+  namespace: portainer
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: portainer
+  chart:
+    repository: https://portainer.github.io/k8s/
+    name: portainer
+    version: 1.0.0
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 5  
+  maxHistory: 20
+  values:
+    image:
+      repository: portainer/portainer-ce
+      tag: 2.0.0
+    ingress:
+      enabled: true
+      annotations: 
+        kubernetes.io/ingress.class: public-nginx-ingress
+      hosts:
+        - host: portainer.ssbkang.io
+          paths:
+            - path: /
+              port: 9000

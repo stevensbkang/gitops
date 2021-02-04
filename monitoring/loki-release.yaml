@@ -1,0 +1,70 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: loki-release
+  namespace: monitoring
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: loki
+  chart:
+    repository: https://grafana.github.io/loki/charts/
+    name: loki
+    version: 2.0.0
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 5  
+  maxHistory: 20
+  values:
+    image:
+      repository: grafana/loki
+      tag: 2.0.0
+      pullPolicy: IfNotPresent
+    nodeSelector:
+      beta.kubernetes.io/os: linux    
+    config:
+      auth_enabled: false
+      ingester:
+        chunk_idle_period: 3m
+        chunk_block_size: 262144
+        chunk_retain_period: 1m
+        max_transfer_retries: 0
+        lifecycler:
+          ring:
+            kvstore:
+              store: inmemory
+            replication_factor: 1
+      limits_config:
+        enforce_metric_name: false
+        reject_old_samples: true
+        reject_old_samples_max_age: 168h        
+      schema_config:
+        configs:
+        - from: 2020-10-24
+          store: boltdb-shipper
+          object_store: azure
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+      server:
+        http_listen_port: 3100
+      storage_config:
+        azure:
+          container_name: loki
+          account_name: lokisa 
+          account_key: xxxxxxxx
+        boltdb_shipper:
+          active_index_directory: /data/loki/boltdb-shipper-active
+          cache_location: /data/loki/boltdb-shipper-cache
+          cache_ttl: 24h
+          shared_store: azure
+      chunk_store_config:
+        max_look_back_period: 0s
+      table_manager:
+        retention_deletes_enabled: false
+        retention_period: 0s
+      compactor:
+        working_directory: /data/loki/boltdb-shipper-compactor
+        shared_store: azure

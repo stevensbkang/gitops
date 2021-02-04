@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kured
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: kured
+  namespace: kured
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: kured
+  chart:
+    repository: https://weaveworks.github.io/kured/
+    name: kured
+    version: 2.1.1
+  values:
+    nodeSelector:
+      beta.kubernetes.io/os: linux
+    configuration:
+      startTime: 7pm
+      endTime: 5am
+      timeZone: Pacific/Auckland
+      rebootDays: [su,sa]
+      slackUsername: ssbkang
+      slackHookUrl: https://hooks.slack.com/services/xxx/xxx/xxx
+      slackChannel: kured_kubernetes1
