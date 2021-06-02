@@ -1,0 +1,128 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-release
+  namespace: monitoring
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: kube-prometheus-stack
+  chart:
+    repository: https://prometheus-community.github.io/helm-charts
+    name: kube-prometheus-stack
+    version: 12.11.3
+  rollback:
+    enable: true
+    retry: true
+    maxRetries: 5
+  maxHistory: 20
+  values:
+    ## Alert Manager
+    alertmanager:
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          group_by: ["job"]
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 12h
+          receiver: "null"
+          routes:
+            - match:
+                alertname: Watchdog
+              receiver: "null"
+        receivers:
+          - name: "null"
+      ingress:
+        enabled: true
+        annotations: 
+          kubernetes.io/ingress.class: public-nginx-ingress
+        hosts:
+          - dev-alertmanager.datacomcpnz.com
+      alertmanagerSpec:
+        image:
+          repository: quay.io/prometheus/alertmanager
+          tag: v0.21.0
+        storage:
+          volumeClaimTemplate:
+            spec:
+              # Name of the PV you created beforehand
+              volumeName: pvc-d46c5f3a-7017-4ecb-ba53-d337debfa42e
+              accessModes: ["ReadWriteOnce"]
+              # StorageClass should match your existing PV's storage class
+              storageClassName: managed-premium
+              resources:
+                requests:
+                  # Size below should match your existing PV's size
+                  storage: 5
+    ## Grafana
+    grafana:
+      image:
+        repository: grafana/grafana
+        tag: 7.3.0
+      ingress:
+        enabled: true
+        annotations: 
+          kubernetes.io/ingress.class: public-nginx-ingress
+        hosts:
+          - dev-monitoring.datacomcpnz.com
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      envRenderSecret:
+        GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP : "true"
+        GF_AUTH_GENERIC_OAUTH_ALLOWED_ORGANIZATIONS : ""
+        GF_AUTH_GENERIC_OAUTH_API_URL : ""
+        GF_AUTH_GENERIC_OAUTH_ENABLED : "false"
+        GF_AUTH_GENERIC_OAUTH_SCOPES : "openid email profile"
+        GF_AUTH_GENERIC_OAUTH_TEAM_IDS : ""
+        GF_INSTALL_PLUGINS : "grafana-clock-panel,grafana-azure-monitor-datasource,grafana-piechart-panel"
+        GF_SERVER_ROOT_URL : "https://dev-monitoring.datacomcpnz.com"
+        GF_SMTP_ENABLED : "false"
+        GF_SMTP_FROM_ADDRESS : ""
+        GF_SMTP_PASSWORD : ""
+        GF_SMTP_SKIP_VERIFY : "false"
+        GF_SMTP_USER : ""
+        GF_DATABASE_URL : "sqlite3:///var/lib/grafana/grafana.db?cache:private&mode:rwc&_journal_mode:WAL"
+      persistence:
+        type: pvc
+        enabled: true
+        finalizers:
+          - kubernetes.io/pvc-protection
+        existingClaim: grafana-pvc
+      admin:
+        existingSecret: dev-grafana-secret
+        userKey: admin-user
+        passwordKey: admin-password
+    ## PrometheusOperator
+    prometheusOperator:    
+      image:
+        repository: quay.io/prometheus-operator/prometheus-operator
+        tag: v0.44.0
+      prometheusConfigReloaderImage:
+        repository: quay.io/prometheus-operator/prometheus-config-reloader
+        tag: v0.44.0
+    ## Prometheus
+    prometheus:
+      prometheusSpec:
+        image:
+          repository: quay.io/prometheus/prometheus
+          tag: v2.22.1
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              # Name of the PV you created beforehand
+              volumeName: pvc-92b27a32-5611-479c-b091-f9ad17f18d4e
+              accessModes: ["ReadWriteOnce"]
+              # StorageClass should match your existing PV's storage class
+              storageClassName: managed-premium
+              resources:
+                requests:
+                  # Size below should match your existing PV's size
+                  storage: 64
+      ingress:
+        enabled: true
+        annotations: 
+          kubernetes.io/ingress.class: public-nginx-ingress
+        hosts:
+          - dev-collector.datacomcpnz.com
