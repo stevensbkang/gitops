@@ -37,13 +37,13 @@ metadata:
 spec:
   secretName: tls-secret
   dnsNames:
-    - dev-monitoring.datacomcpnz.com
+    - dev-monitoring.ssbkang.io
   acme:
     config:
       - http01:
           ingressClass: public-nginx-ingress
         domains:
-          - dev-monitoring.datacomcpnz.com
+          - dev-monitoring.ssbkang.io
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer

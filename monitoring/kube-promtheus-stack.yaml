@@ -39,7 +39,7 @@ spec:
         annotations: 
           kubernetes.io/ingress.class: public-nginx-ingress
         hosts:
-          - dev-alertmanager.datacomcpnz.com
+          - dev-alertmanager.ssbkang.io
       alertmanagerSpec:
         image:
           repository: quay.io/prometheus/alertmanager
@@ -66,7 +66,7 @@ spec:
         annotations: 
           kubernetes.io/ingress.class: public-nginx-ingress
         hosts:
-          - dev-monitoring.datacomcpnz.com
+          - dev-monitoring.ssbkang.io
       nodeSelector:
         beta.kubernetes.io/os: linux
       envRenderSecret:
@@ -77,7 +77,7 @@ spec:
         GF_AUTH_GENERIC_OAUTH_SCOPES : "openid email profile"
         GF_AUTH_GENERIC_OAUTH_TEAM_IDS : ""
         GF_INSTALL_PLUGINS : "grafana-clock-panel,grafana-azure-monitor-datasource,grafana-piechart-panel"
-        GF_SERVER_ROOT_URL : "https://dev-monitoring.datacomcpnz.com"
+        GF_SERVER_ROOT_URL : "https://dev-monitoring.ssbkang.io"
         GF_SMTP_ENABLED : "false"
         GF_SMTP_FROM_ADDRESS : ""
         GF_SMTP_PASSWORD : ""
@@ -125,4 +125,4 @@ spec:
         annotations: 
           kubernetes.io/ingress.class: public-nginx-ingress
         hosts:
-          - dev-collector.datacomcpnz.com
+          - dev-collector.ssbkang.io
