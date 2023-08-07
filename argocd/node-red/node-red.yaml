@@ -49,4 +49,4 @@ spec:
       targetPort: 1880
   selector:
     app: node-red
-  type: ClusterIP
+  type: NodePort
