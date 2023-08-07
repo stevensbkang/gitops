@@ -215,6 +215,7 @@ kind: Service
 metadata:
   name: influxdb
 spec:
+  type: NodePort
   selector:
     app: influxdb 
   ports:
